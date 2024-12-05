@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UsersStoreService } from './shared/state/users.store.service';
 import { User } from './shared/models/user';
 import { BehaviorSubject } from 'rxjs';
+import { NameExistValidator } from './shared/utils/name.validator';
 
 @Component({
   selector: 'app-root',
@@ -16,20 +17,27 @@ export class AppComponent implements OnInit {
     public _usersStoreService: UsersStoreService
   ) {}
 
+  ngOnInit(): void {
+    // If this returns one item it is false
+    console.log(this._usersStoreService.active);
+    // Less than 5 for button check
+    console.log(this._usersStoreService.count);
+  }
+
   users$: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
 
-  // TODO: Async validator
-
   userCreationFormGroup: FormGroup = this._formBuilder.group({
-    name: ['', Validators.required],
+    name: [
+      '',
+      {
+        validators: [Validators.required],
+        asyncValidators: [
+          NameExistValidator.createValidator(this._usersStoreService),
+        ],
+      },
+    ],
     active: [false, Validators.required],
   });
-
-  ngOnInit(): void {
-    this._usersStoreService.usersFromStore$.subscribe((res) => {
-      console.log(res);
-    });
-  }
 
   submit(): void {
     const randomId = Math.floor(Math.random() * 100);
@@ -39,8 +47,14 @@ export class AppComponent implements OnInit {
     if (this.userCreationFormGroup.valid && name) {
       this._usersStoreService.createUser(randomId, name, active);
       this.userCreationFormGroup.reset();
-    } else {
-      console.log('Error');
     }
+  }
+
+  get name() {
+    return this.userCreationFormGroup.get('name');
+  }
+
+  get active() {
+    return this.userCreationFormGroup.get('active');
   }
 }

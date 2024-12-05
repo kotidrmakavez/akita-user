@@ -6,7 +6,6 @@
   box-sizing: border-box;
   padding: 2rem;
   gap: 1rem;
-  // border: 1px solid red;
 
   .top-part {
     display: flex;
@@ -28,5 +27,9 @@
     flex-direction: row;
     width: 100%;
     gap: 1rem;
+  }
+
+  .error-msg {
+    color: red;
   }
 }

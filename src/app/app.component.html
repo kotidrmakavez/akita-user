@@ -32,6 +32,10 @@
       <label htmlFor="username">Username</label>
       <input pInputText id="username" formControlName="name" />
     </span>
+    <p class="error-msg" *ngIf="name?.hasError('invalidAsync')">
+      Name already exist
+    </p>
+
     <span class="row">
       <label for="active">Active</label>
       <p-checkbox
@@ -43,7 +47,9 @@
     <p-button
       label="Create User"
       type="submit"
-      [disabled]="userCreationFormGroup.invalid"
+      [disabled]="
+        userCreationFormGroup.invalid && name?.hasError('invalidAsync')
+      "
     ></p-button>
   </form>
 </p-overlayPanel>
