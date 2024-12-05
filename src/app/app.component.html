@@ -1,1 +1,49 @@
-<p>test2</p>
+<div class="container">
+  <div class="top-part">
+    <p-button label="Add User" (click)="formPanel.toggle($event)"></p-button>
+  </div>
+  <div *ngIf="_usersStoreService.usersFromStore$ | async as users">
+    <p-table [value]="users">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-product>
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.active }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-overlayPanel #formPanel>
+  <form
+    class="form-container"
+    [formGroup]="userCreationFormGroup"
+    (ngSubmit)="submit(); formPanel.hide()"
+  >
+    <span class="row">
+      <label htmlFor="username">Username</label>
+      <input pInputText id="username" formControlName="name" />
+    </span>
+    <span class="row">
+      <label for="active">Active</label>
+      <p-checkbox
+        formControlName="active"
+        inputId="active"
+        [binary]="true"
+      ></p-checkbox>
+    </span>
+    <p-button
+      label="Create User"
+      type="submit"
+      [disabled]="userCreationFormGroup.invalid"
+    ></p-button>
+  </form>
+</p-overlayPanel>
