@@ -1,4 +1,4 @@
-import { createStore, withProps, select } from '@ngneat/elf';
+import { createStore } from '@ngneat/elf';
 import {
   addEntities,
   getEntitiesCount,
@@ -6,13 +6,14 @@ import {
   selectAllEntities,
   withEntities,
 } from '@ngneat/elf-entities';
-import { User, UserProps } from '../models/user';
+import { User } from '../models/user';
+import { joinRequestResult } from '@ngneat/elf-requests';
 
 const initialState = [
   {
     id: 1,
     name: 'Milos',
-    active: false,
+    active: true,
   },
   {
     id: 2,
@@ -29,7 +30,7 @@ const usersStore = createStore(
 );
 
 import { Injectable } from '@angular/core';
-import { delay, Observable, of, timer } from 'rxjs';
+import { delay, map, Observable, of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class UsersStoreService {
@@ -37,11 +38,24 @@ export class UsersStoreService {
 
   usersFromStore$ = usersStore.pipe(selectAllEntities());
 
+  disabledAddUserButton$ = usersStore.pipe(
+    selectAllEntities(),
+    map((users) => ({
+      allActive: users.every((user) => user.active),
+      userCount: users.length,
+    })),
+    map(({ allActive, userCount }) => {
+      if (allActive && userCount < 5) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+  );
+
   count = usersStore.query(getEntitiesCount());
 
-  active = usersStore.query(
-    getEntityByPredicate(({ active }) => active === false)
-  );
+  active = usersStore.query(getEntityByPredicate(({ active }) => !active));
 
   createUser(id: User['id'], name: User['name'], active: User['active']) {
     usersStore.update(addEntities({ id: id, name, active: active }));
@@ -53,9 +67,9 @@ export class UsersStoreService {
     );
 
     if (nameExists) {
-      return of(true).pipe(delay(2000));
+      return of(true).pipe(delay(1000));
     } else {
-      return of(false).pipe(delay(2000));
+      return of(false).pipe(delay(1000));
     }
   }
 }

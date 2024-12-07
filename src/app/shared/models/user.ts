@@ -3,7 +3,3 @@ export interface User {
   name: string;
   active: boolean;
 }
-
-export interface UserProps {
-  users: User[];
-}
